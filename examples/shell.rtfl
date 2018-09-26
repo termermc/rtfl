@@ -1,0 +1,11 @@
+open_terminal()
+
+println("=========================")
+println("Welcome to the Rtfl shell")
+println("=========================\n")
+println("Enter some code and hit enter to interpret it instantly!\n")
+
+while terminal_open() {
+	eval(read_terminal())
+}
+// You're gay

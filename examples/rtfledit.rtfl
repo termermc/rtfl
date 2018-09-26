@@ -1,0 +1,189 @@
+func save {
+	def i = 0
+	def len = array_length(doc)
+	def sub_len = sub(len, 1)
+	def out = ""
+	while less_than(i, len) {
+		def line_content = array_get(doc, i)
+		out = concat(out, line_content)
+		if less_than(i, sub_len) {
+			out = concat(out, "\n")
+		}
+		inc("i")
+	}
+	undef sub_len
+	undef len
+	undef i
+	write_file(filename, out)
+	undef out
+}
+func load {
+	def f = read_file(filename)
+	doc = split(f, "\n")
+	undef f
+	render()
+	cur_line = array_length(doc)
+}
+func round {
+	def num = to_string(arg1)
+	def str_len = string_length(num)
+	def sub = sub(str_len, 2)
+	return substring(num, 0, sub)
+}
+func render {
+	def i = 0
+	def len = array_length(doc)
+	while less_than(i, len) {
+		def num = round(i)
+		print(concat(num, " "))
+		undef num
+		println(array_get(doc, i))
+		inc("i")
+	}
+	undef len
+	undef i
+}
+
+func action {
+	def act = arg1
+	def acted = false
+	if equals(act, "help") {
+		acted = true
+		println("Available actions:")
+		println("help - prints this message")
+		println("load - loads a text file")
+		println("save - saves the currently open text file")
+		println("saveas - saves the currently open document in another file")
+		println("new - scraps the currently edited document and starts editing a new one")
+		println("delline - deletes a line")
+		println("setline - sets the contents of a line")
+		println("quit - terminates the program")
+		println("reprint - prints the entirety of the document so far")
+	}
+	if equals(act, "load") {
+		acted = true
+		print("Enter file path: ")
+		def file = read_terminal()
+		if file_exists(file) {
+			filename = file
+			load()
+		}
+		if not(file_exists(file)) {
+			println("File does not exist")
+		}
+		undef file
+	}
+	if equals(act, "save") {
+		acted = true
+		if equals(filename, "") {
+			print("Enter a file name: ")
+			def file = read_terminal()
+			filename = file
+			save()
+			undef file
+		}
+		if not(equals(filename, "")) {
+			save()
+		}
+	}
+	if equals(act, "saveas") {
+		acted = true
+		print("Enter a file name: ")
+                def file = read_terminal()
+                filename = file
+                save()
+                undef file
+
+	}
+	if equals(act, "new") {
+		acted = true
+		doc = array()
+		filename = ""
+		def whitespace = 0
+		while less_than(whitespace, 100) {
+			println("")
+			inc("whitespace")
+		}
+		undef whitespace
+		cur_line = 0
+	}
+	if equals(act, "quit") {
+		acted = true
+		exit()
+	}
+	if equals(act, "delline") {
+		acted = true
+		print("Enter line number to delete: ")
+		def ltd = to_number(read_terminal())
+		def arrlen = array_length(doc)
+		def less = less_than(ltd, arrlen)
+		if less {
+			array_remove(doc, ltd)
+		}
+		if not(less) {
+			println("Line does not exist")
+		}
+		undef less
+		undef arrlen
+	}
+	if equals(act, "setline") {
+		acted = true
+		print("Enter line number to edit: ")
+		def ltd = to_number(read_terminal())
+		def arrlen = array_length(doc)
+		def less = less_than(ltd, arrlen)
+		if less {
+			print(round(ltd))
+			print(" ")
+			def content = read_terminal()
+			array_set(doc, ltd, content)
+			undef content
+		}
+		if not(less) {
+			println("Line does not exist")
+		}
+		undef less
+		undef arrlen
+	}
+	if equals(act, "reprint") {
+		acted = true
+		render()
+	}
+	
+	if not(acted) {
+		println("Unknown action, type :help to see available actions")
+	}
+	undef acted
+	undef act
+}
+
+open_terminal()
+def line = ""
+def cur_line = 0
+def doc = array()
+def filename = ""
+
+println("===========================================")
+println("Welcome to RtflEdit!")
+println("Type :action help to see available actions.")
+println("Type anything to add lines to the doc.")
+println("===========================================\n")
+
+
+while terminal_open() {
+	print(round(cur_line))
+	print(" ")
+	
+	line = read_terminal()
+	
+	if starts_with(line, ":") {
+		def len = string_length(line)
+		action(substring(line, 1, len))
+		undef len
+	}
+	if not(starts_with(line, ":")) {
+		array_add(doc, line)
+		inc("cur_line")
+	}
+}
+exit()
