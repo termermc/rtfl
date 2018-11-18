@@ -1,0 +1,24 @@
+open_terminal()
+
+print("Character to print: ")
+def char = read_terminal()
+print("Width: ")
+def w = to_number(read_terminal())
+print("Height: ")
+def h = to_number(read_terminal())
+close_terminal()
+
+def x = 0
+while less_than(x, w) {
+    def y = 0
+    while less_than(y, h) {
+        print(char)
+        inc("y")
+    }
+    undef y
+    print("\n")
+    inc("x")
+}
+undef x
+
+exit()

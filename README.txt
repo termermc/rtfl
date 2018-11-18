@@ -161,6 +161,8 @@ string_replace(<string>, <string>, <string>) - replaces the string
 					       in the third, inside
 					       of the string specified
 					       in the first argument
+library(<string>) - loads the specified jar rtfl library
+sleep(<number>) - sleeps for the specified amount of milliseconds
 
 4. Known Bugs
 
@@ -170,3 +172,10 @@ println(add(1,1))
 it would work, but if you were to type
 println(add(1,sub(2,1)))
 the interpreter would encounter an error.
+
+5. Making Jar Rtfl Libraries
+
+To make a library that can be loaded with library(), you must create
+a jar with a least one class named "Lib" that implements the net.termer.rtfl.Library
+interface. When the library is loaded with library(), the "initialize"
+method will be called in the library.

@@ -70,7 +70,7 @@ public class Expressions {
 		return var;
 	}
 	
-	public Double getNumberValue(String expression) throws RtflException {
+	public Double getNumberValue(String expression, int line) throws RtflException {
 		String exp = expression.trim();
 		Double val = null;
 		
@@ -85,20 +85,20 @@ public class Expressions {
 					if(var instanceof Double) {
 						val = (Double)var;
 					} else {
-						throw new RtflException("referenced variable is not a number");
+						throw new RtflException("referenced variable is not a number", line);
 					}
 				} else if(isFunc(exp)) {
-					Object func = getFuncValue(exp);
+					Object func = getFuncValue(exp, line);
 					
 					if(func instanceof Double) {
 						val = (Double)func;
 					} else if(func instanceof Integer) {
 						val = ((Integer)func).doubleValue();
 					} else {
-						throw new RtflException("referenced variable is not a number");
+						throw new RtflException("referenced variable is not a number", line);
 					}
 				} else {
-					throw new RtflException("referenced variable \""+exp+"\" is undefined");
+					throw new RtflException("referenced variable \""+exp+"\" is undefined", line);
 				}
 			}
 		}
@@ -106,7 +106,7 @@ public class Expressions {
 		return val;
 	}
 	
-	public String getStringValue(String expression) throws RtflException {
+	public String getStringValue(String expression, int line) throws RtflException {
 		String exp = expression.trim();
 		String val = null;
 		if(isValid(exp)) {
@@ -126,7 +126,7 @@ public class Expressions {
 				if(quotes<3) {
 					if(exp.startsWith("\"")) {
 						if(exp.charAt(exp.lastIndexOf('\"')-1) == '\\') {
-							throw new RtflException("unclosed quote");
+							throw new RtflException("unclosed quote", line);
 						} else {
 							if(exp.endsWith("\"")) {
 								val = exp.substring(1, exp.length()-1).replace("\\\"", "\"")
@@ -134,12 +134,12 @@ public class Expressions {
 										.replace("\\t", "\t")
 										.replace("\\\\", "\\");
 							} else {
-								throw new RtflException("unclosed quote");
+								throw new RtflException("unclosed quote", line);
 							}
 						}
 					}
 				} else {
-					throw new RtflException("unclosed quote");
+					throw new RtflException("unclosed quote", line);
 				}
 			} else {
 				if(INTERP.getVariables().isDefined(exp)) {
@@ -148,17 +148,17 @@ public class Expressions {
 					if(var instanceof String) {
 						val = (String)var;
 					} else {
-						throw new RtflException("referenced variable is not a String");
+						throw new RtflException("referenced variable is not a String", line);
 					}
 				} else {
-					throw new RtflException("referenced variable \""+exp+"\" is undefined");
+					throw new RtflException("referenced variable \""+exp+"\" is undefined", line);
 				}
 			}
 		}
 		return val;
 	}
 	
-	public Object getFuncValue(String expression) throws RtflException {
+	public Object getFuncValue(String expression, int line) throws RtflException {
 		Object val = null;
 		String exp = expression.trim();
 		
@@ -193,22 +193,22 @@ public class Expressions {
 						}
 						expParams.add(enclosed.substring(splitStart, enclosed.length()));
 						for(String expParam : expParams) {
-							args.add(getValue(expParam));
+							args.add(getValue(expParam, line));
 						}
 					} else {
-						args.add(getValue(enclosed));
+						args.add(getValue(enclosed, line));
 					}
 				}
 				val = INTERP.getFunctions().get(name).run(args.toArray(), INTERP);
 			} else {
-				throw new RtflException("expression is not a function");
+				throw new RtflException("expression is not a function", line);
 			}
 		}
 		
 		return val;
 	}
 	
-	public Object getValue(String expression) throws RtflException {
+	public Object getValue(String expression, int line) throws RtflException {
 		Object val = null;
 		String exp = expression.trim();
 		
@@ -223,15 +223,15 @@ public class Expressions {
 			else if(exp.equalsIgnoreCase("undefined")) {}
 			else {
 				if(Text.isNumber(exp)) {
-					val = getNumberValue(exp);
+					val = getNumberValue(exp, line);
 				} else if(isString(exp)) {
-					val = getStringValue(exp);
+					val = getStringValue(exp, line);
 				} else if(isVar(exp)) {
 					val = INTERP.getVariables().get(exp);
 				} else if(isFunc(exp)) {
-					val = getFuncValue(exp);
+					val = getFuncValue(exp, line);
 				} else {
-					throw new RtflException("referenced variable \""+exp+"\" is undefined");
+					throw new RtflException("referenced variable \""+exp+"\" is undefined", line);
 				}
 			}
 		}

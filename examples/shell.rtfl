@@ -1,3 +1,26 @@
+def echo = false
+
+func echo {
+	if equals(arg1, "on") {
+		echo = true
+	}
+	if equals(arg1, "off") {
+		echo = false
+	}
+	if equals(arg1, true) {
+		echo = true
+	}
+	if equals(arg1, false) {
+		echo = false
+	}
+	if equals(echo, true) {
+		println("Echo enabled")
+	}
+	if equals(echo, false) {
+		println("Echo disabled")
+    }
+}
+
 open_terminal()
 
 println("=========================")
@@ -6,6 +29,14 @@ println("=========================\n")
 println("Enter some code and hit enter to interpret it instantly!\n")
 
 while terminal_open() {
-	eval(read_terminal())
+        error err {
+		def res = eval(read_terminal())
+		if echo {
+			println(res)
+		}
+		undef res
+        }
+	if not(equals(err, "ok")) {
+		println(err)
+	}
 }
-// You're gay

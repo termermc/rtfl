@@ -4,9 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.Connection.Method;
+
 import net.termer.rtfl.exceptions.RtflException;
 
 public class Native {
+	// Temporary vars
+	private static RtflInterpreter INTERP = null;
+	private static String CODE = null;
+	
 	public static final String[] FUNCTION_NAMES = {
 			"print",
 			"println",
@@ -50,7 +58,11 @@ public class Native {
 			"array_set",
 			"type",
 			"to_number",
-			"string_replace"
+			"string_replace",
+			"library",
+			"sleep",
+			"read_http",
+			"async"
 	};
 	public static final Function[] FUNCTIONS = {
 			new Function() {
@@ -164,13 +176,17 @@ public class Native {
 				public Object run(Object[] args, RtflInterpreter interp) {
 					String val = null;
 					if(args.length>0) {
-						val = args[0].toString();
+						if(args[0] == null) {
+							val = "null";
+						} else {
+							val = args[0].toString();
+						}
 					}
 					return val;
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp) throws RtflException {
 					Object val = null;
 					if(args.length>0) {
 						if(args[0] instanceof String) {
@@ -181,7 +197,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp) throws RtflException {
 					Object val = null;
 					if(args.length>0) {
 						if(args[0] instanceof String) {
@@ -575,6 +591,88 @@ public class Native {
 					}
 					
 					return val;
+				}
+			},
+			new Function() {
+				public Object run(Object[] args, RtflInterpreter interp) {
+					if(args.length>0) {
+						if(args[0] instanceof String) {
+							try {
+								JarLoader.loadJar(new File((String)args[0])).initialize(interp);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+					
+					return null;
+				}
+			},
+			new Function() {
+				public Object run(Object[] args, RtflInterpreter interp) {
+					if(args.length > 0) {
+						if(args[0] instanceof Double) {
+							try {
+								Thread.sleep(((Double)args[0]).longValue());
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+					
+					return null;
+				}
+			},
+			new Function() {
+				public Object run(Object[] args, RtflInterpreter interp) throws RtflException {
+					Object res = null;
+					if(args.length > 0) {
+						if(args[0] instanceof String) {
+							try {
+								Connection conn = Jsoup.connect((String)args[0])
+										.followRedirects(true)
+										.ignoreContentType(true)
+										.ignoreHttpErrors(true);
+								
+								if(args.length > 1) {
+									if(args[1] instanceof String) {
+										String mthd = (String)args[1];
+										if(mthd.equalsIgnoreCase("POST")) {
+											conn.method(Method.POST);
+										}
+									}
+								}
+								
+								res = conn.execute().body();
+							} catch (IOException e) {
+								throw new RtflException("Failed to connect to URL ("+(String)args[0]+")", 1);
+							}
+						}
+					}
+					return res;
+				}
+			},
+			new Function() {
+				public Object run(Object[] args, RtflInterpreter interp) throws RtflException {
+					Object res = null;
+					if(args.length > 0) {
+						if(args[0] instanceof String) {
+							INTERP = interp;
+							CODE = (String)args[0];
+							new Thread() {
+								public void run() {
+									try {
+										INTERP.execute(CODE);
+									} catch (RtflException e) {
+										e.printStackTrace();
+									}
+									INTERP = null;
+									CODE = null;
+								}
+							}.start();
+						}
+					}
+					return res;
 				}
 			}
 	};

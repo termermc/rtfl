@@ -1,0 +1,89 @@
+open_terminal()
+
+print("Enter terminal width: ")
+def w = to_number(read_terminal())
+print("Enter terminal heigh: ")
+def h = to_number(read_terminal())
+h = sub(h, 1)
+print("Slowness: ")
+def slowness = to_number(read_terminal())
+
+def bar_max = sub(w, 2)
+def bar = 0;
+
+func min {
+    def val = -1;
+    if more_than(arg1, arg2) {
+        val = arg2
+    }
+    if not(more_than(arg1, arg2)) {
+        val = arg1
+    }
+    return val
+    undef val
+}
+
+func percent {
+    def numstr = div(arg1, arg2)
+    numstr = mul(numstr, 100)
+    numstr = to_string(numstr)
+    
+    def strlen = string_length(numstr)
+    def length = min(strlen, 2)
+    numstr = substring(numstr, 0, length)
+    numstr = string_replace(numstr, ".", "")
+    
+    return numstr
+    undef length
+    undef strlen
+    undef numstr
+}
+
+func wait {
+    def prog = 0;
+    while less_than(prog, slowness) {
+        sleep(100)
+        inc("prog")
+    }
+    undef prog
+}
+
+func repeat {
+    def prog = 0;
+    while less_than(prog, arg2) {
+        print(arg1)
+        inc("prog")
+    }
+    undef prog
+}
+
+print("[")
+repeat("#", 5)
+print("]")
+
+func render {
+    repeat("\n", h)
+    print("Progress: ")
+    print(percent(bar, bar_max))
+    println("%")
+//    print(bar)
+//    print("/")
+//    println(bar_max)
+    print("[")
+    repeat("#", bar)
+    def whitespace = sub(bar_max, bar)
+    repeat(" ", whitespace)
+    undef whitespace
+    print("]")
+}
+
+while less_than(bar, bar_max) {
+    render()
+    wait()
+    inc("bar")
+}
+render()
+
+
+close_terminal()
+exit()

@@ -1,5 +1,7 @@
 package net.termer.rtfl;
 
+import net.termer.rtfl.exceptions.RtflException;
+
 public class RtflFunction implements Function {
 	String CODE = null;
 	
@@ -7,7 +9,7 @@ public class RtflFunction implements Function {
 		CODE = code;
 	}
 	
-	public Object run(Object[] args, RtflInterpreter interp) {
+	public Object run(Object[] args, RtflInterpreter interp) throws RtflException {
 		Object result = null;
 		for(int i = 0; i < args.length; i++) {
 			interp.getVariables().register("arg"+Integer.toString(i+1), args[i]);

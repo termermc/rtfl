@@ -20,6 +20,8 @@ public class Rtfl {
 				System.out.print(interp.execute(readFile(args[0])));
 			} catch (IOException e) {
 				e.printStackTrace();
+			} catch(RtflException e) {
+				System.out.println("Error on line "+e.getLine()+": "+e.getMessage());
 			}
 		} else {
 			System.out.println("Please enter the path to an Rtfl file");
