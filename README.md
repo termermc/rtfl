@@ -1,5 +1,5 @@
 # rtfl
-A not-so-helpful functional programming language
+A not-so-helpful procedural programming language
 
 Rtfl Programming Language
 by Michael Termer
