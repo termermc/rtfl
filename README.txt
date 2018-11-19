@@ -163,6 +163,12 @@ string_replace(<string>, <string>, <string>) - replaces the string
 					       in the first argument
 library(<string>) - loads the specified jar rtfl library
 sleep(<number>) - sleeps for the specified amount of milliseconds
+async(<string>) - executes the specified Rtfl code asynchronously
+read_http(<string>, <string>[optional]) - returns the HTTP response
+										  of the URL specified in the
+										  first parameter, optionally
+										  with the method specified
+										  in the second parameter.
 
 4. Known Bugs
 
