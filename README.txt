@@ -60,6 +60,14 @@ if a_boolean {
 	
 }
 
+Variables can also be locally scoped, which means they can only
+be accessed from the current code block, and blocks inside of
+it (including any load(), eval(), or async() calls inside the
+block). To declare a variable in a local scope, simply type
+local var_name = "value"
+Other than scoping, these variables behave identically to
+normally scoped variables.
+
 3. Functions
 
 In Rtfl, you can define functions to do certain actions.
@@ -199,6 +207,11 @@ read_http(<string>, <string>[optional]) - returns the HTTP response
 										  first parameter, optionally
 										  with the method specified
 										  in the second parameter.
+delete_file(<string>) - deletes the specified file.
+list_files(<string>) - lists all the files and directories in the
+					   specified directory.
+create_directory(<string>) - creates a directory with the specified
+							 path.
 
 4. Known Bugs
 
