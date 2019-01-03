@@ -3,80 +3,83 @@ package net.termer.rtfl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.Connection.Method;
 
 import net.termer.rtfl.exceptions.RtflException;
+import net.termer.rtfl.expressions.Functions;
 
 public class Native {
-	// Temporary vars
-	private static RtflInterpreter INTERP = null;
-	private static String CODE = null;
 	
 	public static final String[] FUNCTION_NAMES = {
-			"print",
-			"println",
-			"inc",
-			"dec",
-			"equals",
-			"more_than",
-			"less_than",
-			"concat",
-			"var",
-			"to_string",
-			"eval",
-			"load",
-			"add",
-			"sub",
-			"mul",
-			"div",
-			"read_file",
-			"write_file",
-			"file_exists",
-			"not",
-			"gc",
-			"open_terminal",
-			"close_terminal",
-			"read_terminal",
-			"terminal_open",
-			"exit",
-			"array",
-			"array_add",
-			"array_remove",
-			"array_get",
-			"array_length",
-			"and",
-			"or",
-			"split",
-			"starts_with",
-			"ends_with",
-			"substring",
-			"char_at",
-			"string_length",
-			"array_set",
-			"type",
-			"to_number",
-			"string_replace",
-			"library",
-			"sleep",
-			"read_http",
-			"async"
+		"print",
+		"println",
+		"inc",
+		"dec",
+		"equals",
+		"more_than",
+		"less_than",
+		"concat",
+		"var",
+		"to_string",
+		"eval",
+		"load",
+		"add",
+		"sub",
+		"mul",
+		"div",
+		"read_file",
+		"write_file",
+		"file_exists",
+		"not",
+		"gc",
+		"open_terminal",
+		"close_terminal",
+		"read_terminal",
+		"terminal_open",
+		"exit",
+		"array",
+		"array_add",
+		"array_remove",
+		"array_get",
+		"array_length",
+		"and",
+		"or",
+		"split",
+		"starts_with",
+		"ends_with",
+		"substring",
+		"char_at",
+		"string_length",
+		"array_set",
+		"type",
+		"to_number",
+		"string_replace",
+		"library",
+		"sleep",
+		"read_http",
+		"async",
+		"delete_file",
+		"list_files",
+		"create_directory"
 	};
 	public static final Function[] FUNCTIONS = {
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					if(args.length>0) {
-						System.out.print(args[0]);
+						System.out.print(args[0].toString());
 					}
 					return null;
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					if(args.length>0) {
-						System.out.println(args[0]);
+						System.out.println(args[0].toString());
 					} else {
 						System.out.println();
 					}
@@ -84,7 +87,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					if(args.length>0) {
 						if(args[0] instanceof String) {
 							Object var = interp.getVariables().get((String)args[0]);
@@ -99,7 +102,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					if(args.length>0) {
 						if(args[0] instanceof String) {
 							Object var = interp.getVariables().get((String)args[0]);
@@ -114,7 +117,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Boolean val = false;
 					if(args.length>1) {
 						if(args[0] instanceof String && args[1] instanceof String) {
@@ -129,7 +132,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Boolean val = false;
 					if(args.length>1) {
 						if(args[0] instanceof Double && args[1] instanceof Double) {
@@ -140,7 +143,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Boolean val = false;
 					if(args.length>1) {
 						if(args[0] instanceof Double && args[1] instanceof Double) {
@@ -151,7 +154,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					String val = null;
 					if(args.length>1) {
 						if(args[0] instanceof String && args[1] instanceof String) {
@@ -162,7 +165,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					if(args.length>0) {
 						if(args[0] instanceof String) {
@@ -173,7 +176,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					String val = null;
 					if(args.length>0) {
 						if(args[0] == null) {
@@ -186,23 +189,23 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) throws RtflException {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) throws RtflException {
 					Object val = null;
 					if(args.length>0) {
 						if(args[0] instanceof String) {
-							val = interp.execute((String)args[0]);
+							val = interp.execute((String)args[0], Functions.copyLocalVarList(localVars));
 						}
 					}
 					return val;
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) throws RtflException {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) throws RtflException {
 					Object val = null;
 					if(args.length>0) {
 						if(args[0] instanceof String) {
 							try {
-								val = interp.execute(Rtfl.readFile((String)args[0]));
+								val = interp.execute(Rtfl.readFile((String)args[0]), Functions.copyLocalVarList(localVars));
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
@@ -212,7 +215,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					if(args.length>1) {
 						if(args[0] instanceof Double && args[1] instanceof Double) {
@@ -223,7 +226,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					if(args.length>1) {
 						if(args[0] instanceof Double && args[1] instanceof Double) {
@@ -234,7 +237,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					if(args.length>1) {
 						if(args[0] instanceof Double && args[1] instanceof Double) {
@@ -245,7 +248,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					if(args.length>1) {
 						if(args[0] instanceof Double && args[1] instanceof Double) {
@@ -256,7 +259,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					if(args.length>0) {
 						if(args[0] instanceof String) {
@@ -271,7 +274,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					if(args.length>1) {
 						if(args[0] instanceof String && args[1] instanceof String) {
@@ -286,7 +289,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					if(args.length>0) {
 						if(args[0] instanceof String) {
@@ -297,7 +300,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					if(args.length>0) {
 						if(args[0] instanceof Boolean) {
@@ -308,13 +311,13 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					System.gc();
 					return null;
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					if(!interp.isTerminalInputOpen()) {
 						interp.openTerminalInput();
 					}
@@ -322,7 +325,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					if(interp.isTerminalInputOpen()) {
 						try {
 							interp.closeTerminalInput();
@@ -334,7 +337,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					String val = null;
 					if(interp.isTerminalInputOpen()) {
 						try {
@@ -347,7 +350,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Boolean val = null;
 					if(interp.isTerminalInputOpen()) {
 						val = interp.isTerminalInputOpen();
@@ -356,19 +359,19 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					System.exit(0);
 					return null;
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					return new ArrayList<Object>();
 				}
 			},
 			new Function() {
 				@SuppressWarnings("unchecked")
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					
 					if(args.length>1) {
@@ -382,7 +385,7 @@ public class Native {
 			},
 			new Function() {
 				@SuppressWarnings("unchecked")
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					
 					if(args.length>1) {
@@ -396,7 +399,7 @@ public class Native {
 			},
 			new Function() {
 				@SuppressWarnings("unchecked")
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					
 					if(args.length>1) {
@@ -410,7 +413,7 @@ public class Native {
 			},
 			new Function() {
 				@SuppressWarnings("unchecked")
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					
 					if(args.length>0) {
@@ -423,7 +426,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					
 					if(args.length>1) {
@@ -436,7 +439,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					
 					if(args.length>1) {
@@ -449,7 +452,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public ArrayList<String> run(Object[] args, RtflInterpreter interp) {
+				public ArrayList<String> run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					ArrayList<String> val = null;
 					
 					if(args.length>1) {
@@ -466,7 +469,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Boolean val = null;
 					
 					if(args.length>1) {
@@ -479,7 +482,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Boolean val = null;
 					
 					if(args.length>1) {
@@ -492,7 +495,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					String val = null;
 					
 					if(args.length>2) {
@@ -505,7 +508,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					
 					if(args.length>1) {
@@ -518,7 +521,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					
 					if(args.length>0) {
@@ -532,7 +535,7 @@ public class Native {
 			},
 			new Function() {
 				@SuppressWarnings("unchecked")
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					
 					if(args.length>2) {
@@ -545,7 +548,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					String val = "object";
 					
 					if(args.length>0) {
@@ -566,7 +569,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					
 					if(args.length>0) {
@@ -581,7 +584,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					Object val = null;
 					
 					if(args.length>0) {
@@ -594,7 +597,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					if(args.length>0) {
 						if(args[0] instanceof String) {
 							try {
@@ -609,7 +612,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) {
 					if(args.length > 0) {
 						if(args[0] instanceof Double) {
 							try {
@@ -624,7 +627,7 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) throws RtflException {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) throws RtflException {
 					Object res = null;
 					if(args.length > 0) {
 						if(args[0] instanceof String) {
@@ -653,23 +656,56 @@ public class Native {
 				}
 			},
 			new Function() {
-				public Object run(Object[] args, RtflInterpreter interp) throws RtflException {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) throws RtflException {
 					Object res = null;
 					if(args.length > 0) {
 						if(args[0] instanceof String) {
-							INTERP = interp;
-							CODE = (String)args[0];
 							new Thread() {
 								public void run() {
 									try {
-										INTERP.execute(CODE);
+										String[] vars = interp.getLocalVariables().getVariableMap().keySet().toArray(new String[0]);
+										interp.execute((String)args[0], Functions.copyLocalVarList(localVars));
+										interp.getLocalVariables().purgeAllNew(vars);
 									} catch (RtflException e) {
 										e.printStackTrace();
 									}
-									INTERP = null;
-									CODE = null;
 								}
 							}.start();
+						}
+					}
+					return res;
+				}
+			},
+			new Function() {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) throws RtflException {
+					Object res = null;
+					if(args.length > 0) {
+						if(args[0] instanceof String) {
+							res = new File((String)args[0]).delete();
+						}
+					}
+					return res;
+				}
+			},
+			new Function() {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) throws RtflException {
+					Object res = null;
+					if(args.length > 0) {
+						if(args[0] instanceof String) {
+							ArrayList<String> list = new ArrayList<String>();
+							list.addAll(Arrays.asList(new File((String)args[0]).list()));
+							res = list;
+						}
+					}
+					return res;
+				}
+			},
+			new Function() {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) throws RtflException {
+					Object res = null;
+					if(args.length > 0) {
+						if(args[0] instanceof String) {
+							res = new File((String) args[0]).mkdirs();
 						}
 					}
 					return res;

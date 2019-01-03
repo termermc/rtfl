@@ -1,5 +1,23 @@
-def echo = false
-
+// Define basic functions
+func help {
+	println("")
+	println("=============================================================================")
+	println("Help can be found at the Rtfl GitHub page (https://github.com/termermc/Rtfl),")
+	println("or in the README.txt file that comes with the Rtfl interpreter.")
+	println("=============================================================================")
+	println("")
+}
+func quit {
+	println("NOTE: This is an alias to Rtfl's exit() function, this should not be used in normal scripts!")
+        error __err {
+		exit()
+	}
+	// Detect if the exit function has been undefined
+	if not(equals(__err, "ok")) {
+		println("It appears that the exit function has been undefined, please press CTRL+C to exit.")
+	}
+}
+def echo = true
 func echo {
 	if equals(arg1, "on") {
 		echo = true
@@ -26,13 +44,18 @@ open_terminal()
 println("=========================")
 println("Welcome to the Rtfl shell")
 println("=========================\n")
-println("Enter some code and hit enter to interpret it instantly!\n")
+println("Enter some code and hit enter to interpret it instantly!")
+println("To return the result of executed lines, type echo(true), or use false to disable it.\n")
 
 while terminal_open() {
-        error err {
+        print("> ")
+        error err {		
 		def res = eval(read_terminal())
+		def to_str = to_string(res)
 		if echo {
-			println(res)
+			if not(equals(to_str, "null")) {
+				println(res)
+			}
 		}
 		undef res
         }

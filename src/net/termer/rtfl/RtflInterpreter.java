@@ -3,6 +3,7 @@ package net.termer.rtfl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 
 import net.termer.rtfl.exceptions.RtflException;
 import net.termer.rtfl.expressions.Expressions;
@@ -11,6 +12,7 @@ import net.termer.rtfl.expressions.Variables;
 
 public class RtflInterpreter {
 	private Variables VARS = new Variables();
+	private Variables LOCALS = new Variables();
 	private Functions FUNC = new Functions();
 	private Expressions EXP = new Expressions(this);
 	private BufferedReader TERM = null;
@@ -87,6 +89,15 @@ public class RtflInterpreter {
 	}
 	
 	/**
+	 * Returns the Variables object for local variables in this interpreter
+	 * @return the Variable object for local variables
+	 * @since 1.2
+	 */
+	public Variables getLocalVariables() {
+		return LOCALS;
+	}
+	
+	/**
 	 * Returns the Functions object for this interpreter
 	 * @return the Functions object
 	 * @since 1.0
@@ -110,7 +121,7 @@ public class RtflInterpreter {
 	 * @throws RtflException 
 	 * @since 1.0
 	 */
-	public Object execute(String rtfl) throws RtflException {
+	public Object execute(String rtfl, HashMap<String, String> localVars) throws RtflException {
 		String[] lines = null;
 		Object result = null;
 		if(rtfl.contains("\n")) {
@@ -129,7 +140,7 @@ public class RtflInterpreter {
 			
 				if(!line.startsWith("//") && !line.isEmpty()) {
 					if(line.startsWith("goto ")) {
-						index = EXP.getNumberValue(line.substring(5), index).intValue();
+						index = EXP.getNumberValue(line.substring(5), index, Functions.copyLocalVarList(localVars)).intValue();
 					} else if(line.startsWith("def ")) {
 						// Defines a variable
 						if(line.contains("=")) {
@@ -142,7 +153,30 @@ public class RtflInterpreter {
 										throw new RtflException("variable names may not start with numbers", index);
 									} else {
 										String exp = line.substring(line.indexOf('=')+1);
-										VARS.register(name, EXP.getValue(exp, index));
+										VARS.register(name, EXP.getValue(exp, index, Functions.copyLocalVarList(localVars)));
+									}
+								}
+							} else {
+								throw new RtflException("variable names may only contain letters, numbers, and underscores", index);
+							}
+						} else {
+							throw new RtflException("no value specified", index);
+						}
+					} else if(line.startsWith("local ")) {
+						// Defines a local variable
+						if(line.contains("=")) {
+							String name = line.substring(6).split("=")[0].trim();
+							if(Text.onlyContains(Text.LETTERS_NUMBERS_AND_UNDERSCORES, name)) {
+								if(name.startsWith("arg")) {
+									throw new RtflException("you cannot begin variable names with \"arg\"", index);
+								} else {
+									if(Text.isNumber(name.charAt(0))) {
+										throw new RtflException("variable names may not start with numbers", index);
+									} else {
+										String exp = line.substring(line.indexOf('=')+1);
+										String internal = Functions.generateLocalVarName();
+										localVars.put(name, internal);
+										LOCALS.register(internal, EXP.getValue(exp, index, Functions.copyLocalVarList(localVars)));
 									}
 								}
 							} else {
@@ -152,7 +186,12 @@ public class RtflInterpreter {
 							throw new RtflException("no value specified", index);
 						}
 					} else if(line.startsWith("undef ")) {
-						VARS.clear(line.substring(6));
+						if(localVars.containsKey(line.substring(6))) {
+							LOCALS.clear(localVars.get(line.substring(6)));
+							localVars.remove(line.substring(6));
+						} else {
+							VARS.clear(line.substring(6));
+						}
 					} else if(line.startsWith("func ")) {
 						String name = line.substring(5, line.substring(5).indexOf(' ')+5);
 						if(Text.onlyContains(Text.LETTERS_NUMBERS_AND_UNDERSCORES, name)) {
@@ -197,7 +236,7 @@ public class RtflInterpreter {
 						FUNC.clear(line.substring(7));
 					} else if(line.startsWith("return ")) {
 						// Sets the return value;
-						result = EXP.getValue(line.substring(7), index);
+						result = EXP.getValue(line.substring(7), index, Functions.copyLocalVarList(localVars));
 					} else if(line.startsWith("if ")) {
 						String exp = line.substring(3, line.indexOf('{'));
 						if(index<lines.length-2) {
@@ -230,10 +269,12 @@ public class RtflInterpreter {
 									break;
 								}
 							}
-							Object logic = EXP.getValue(exp, index);
+							Object logic = EXP.getValue(exp, index, Functions.copyLocalVarList(localVars));
 							if(logic instanceof Boolean) {
 								if(((Boolean)logic).booleanValue()) {
-									execute(body);
+									String[] vars = getLocalVariables().getVariableMap().keySet().toArray(new String[0]);
+									execute(body, Functions.copyLocalVarList(localVars));
+									getLocalVariables().purgeAllNew(vars);
 								}
 							} else {
 								throw new RtflException("expression in if statement does not return a boolean", index);
@@ -274,10 +315,12 @@ public class RtflInterpreter {
 								}
 							}
 							while(true) {
-								Object logic = EXP.getValue(exp, index);
+								Object logic = EXP.getValue(exp, index, Functions.copyLocalVarList(localVars));
 								if(logic instanceof Boolean) {
 									if(((Boolean)logic).booleanValue()) {
-										execute(body);
+										String[] vars = getLocalVariables().getVariableMap().keySet().toArray(new String[0]);
+										execute(body, Functions.copyLocalVarList(localVars));
+										getLocalVariables().purgeAllNew(vars);
 									} else {
 										break;
 									}
@@ -323,7 +366,9 @@ public class RtflInterpreter {
 							if(Text.onlyContains(Text.LETTERS_NUMBERS_AND_UNDERSCORES, exp)) {
 								VARS.register(exp, "ok");
 								try {
-									execute(body);
+									String[] vars = getLocalVariables().getVariableMap().keySet().toArray(new String[0]);
+									execute(body, Functions.copyLocalVarList(localVars));
+									getLocalVariables().purgeAllNew(vars);
 								} catch(RtflException ex) {
 									VARS.set(exp, "Error on line "+(index)+": "+ex.getMessage());
 								}
@@ -335,10 +380,10 @@ public class RtflInterpreter {
 						}
 					} else if(line.length()>2) {
 						boolean varSet = false;
+						String name = line.split("=")[0].trim();
 						if(line.contains("=")) {
 							if(!Text.isInQuotes(line, line.indexOf('='), false)) {
-								String name = line.split("=")[0];
-								if(EXP.isVar(name)) {
+								if(EXP.isVar(name, Functions.copyLocalVarList(localVars)) || localVars.containsKey(name)) {
 									varSet = true;
 								} else {
 									throw new RtflException("referenced variable \""+name+"\" is undefined", index);
@@ -346,9 +391,13 @@ public class RtflInterpreter {
 							}
 						}
 						if(varSet) {
-							VARS.set(line.split("=")[0].trim(), EXP.getValue(line.substring(line.indexOf('=')+1).trim(), index));
+							if(localVars.containsKey(name)) {
+								LOCALS.set(localVars.get(name), EXP.getValue(line.substring(line.indexOf('=')+1).trim(), index, Functions.copyLocalVarList(localVars)));
+							} else {
+								VARS.set(name, EXP.getValue(line.substring(line.indexOf('=')+1).trim(), index, Functions.copyLocalVarList(localVars)));
+							}
 						} else if(EXP.isFunc(line)) {
-							EXP.getFuncValue(line, index);
+							EXP.getFuncValue(line, index, Functions.copyLocalVarList(localVars));
 						} else {
 							throw new RtflException("undefined function", index);
 						}

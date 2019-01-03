@@ -1,9 +1,33 @@
 package net.termer.rtfl.expressions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Variables {
 	private HashMap<String,Object> VARS = new HashMap<String,Object>();
+	
+	private <T> boolean arrayContains(T[] arr, T thing) {
+		boolean contains = false;
+		for(T elem : arr) {
+			if(elem.equals(thing)) {
+				contains = true;
+				break;
+			}
+		}
+		return contains;
+	}
+	
+	public void purgeAllNew(String[] names) {
+		ArrayList<String> removeList = new ArrayList<String>();
+		for(String name : VARS.keySet()) {
+			if(!arrayContains(names, name)) {
+				removeList.add(name);
+			}
+		}
+		for(String name : removeList) {
+			clear(name);
+		}
+	}
 	
 	/**
 	 * Registers a variable

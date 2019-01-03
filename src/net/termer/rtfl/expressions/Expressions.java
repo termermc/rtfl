@@ -1,6 +1,7 @@
 package net.termer.rtfl.expressions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import net.termer.rtfl.RtflInterpreter;
 import net.termer.rtfl.Text;
@@ -53,14 +54,14 @@ public class Expressions {
 		return func;
 	}
 	
-	public boolean isVar(String expression) {
+	public boolean isVar(String expression, HashMap<String, String> localVars) {
 		String exp = expression.trim();
 		boolean var = false;
 		if(isValid(exp)) {
 			if(!isString(exp)) {
 				if(!Text.isNumber(exp.charAt(0)) && !(exp.contains("(")||exp.contains(")"))) {
 					if(!isFunc(exp)) {
-						if(INTERP.getVariables().isDefined(exp)) {
+						if(INTERP.getVariables().isDefined(exp) || localVars.containsKey(exp)) {
 							var = true;
 						}
 					}
@@ -70,7 +71,7 @@ public class Expressions {
 		return var;
 	}
 	
-	public Double getNumberValue(String expression, int line) throws RtflException {
+	public Double getNumberValue(String expression, int line, HashMap<String, String> localVars) throws RtflException {
 		String exp = expression.trim();
 		Double val = null;
 		
@@ -79,7 +80,7 @@ public class Expressions {
 			if(Text.isNumber(exp)) {
 				val = Double.parseDouble(exp);
 			} else {
-				if(isVar(exp)) {
+				if(isVar(exp, localVars)) {
 					Object var = INTERP.getVariables().get(exp);
 					
 					if(var instanceof Double) {
@@ -88,7 +89,7 @@ public class Expressions {
 						throw new RtflException("referenced variable is not a number", line);
 					}
 				} else if(isFunc(exp)) {
-					Object func = getFuncValue(exp, line);
+					Object func = getFuncValue(exp, line, localVars);
 					
 					if(func instanceof Double) {
 						val = (Double)func;
@@ -106,11 +107,11 @@ public class Expressions {
 		return val;
 	}
 	
-	public String getStringValue(String expression, int line) throws RtflException {
+	public String getStringValue(String expression, int line, HashMap<String, String> localVars) throws RtflException {
 		String exp = expression.trim();
 		String val = null;
 		if(isValid(exp)) {
-			if(!isVar(exp)) {
+			if(!isVar(exp, localVars)) {
 				int quotes = 0;
 				for(int i = 0; i < exp.length(); i++) {
 					boolean escaped = false;
@@ -158,7 +159,7 @@ public class Expressions {
 		return val;
 	}
 	
-	public Object getFuncValue(String expression, int line) throws RtflException {
+	public Object getFuncValue(String expression, int line, HashMap<String, String> localVars) throws RtflException {
 		Object val = null;
 		String exp = expression.trim();
 		
@@ -193,13 +194,16 @@ public class Expressions {
 						}
 						expParams.add(enclosed.substring(splitStart, enclosed.length()));
 						for(String expParam : expParams) {
-							args.add(getValue(expParam, line));
+							args.add(getValue(expParam, line, localVars));
 						}
 					} else {
-						args.add(getValue(enclosed, line));
+						args.add(getValue(enclosed, line, localVars));
 					}
 				}
-				val = INTERP.getFunctions().get(name).run(args.toArray(), INTERP);
+				Object[] argsArray = args.toArray(new Object[0]);
+				String[] vars = INTERP.getLocalVariables().getVariableMap().keySet().toArray(new String[0]);
+				val = INTERP.getFunctions().get(name).run(argsArray, INTERP, Functions.copyLocalVarList(localVars));
+				INTERP.getLocalVariables().purgeAllNew(vars);
 			} else {
 				throw new RtflException("expression is not a function", line);
 			}
@@ -208,7 +212,7 @@ public class Expressions {
 		return val;
 	}
 	
-	public Object getValue(String expression, int line) throws RtflException {
+	public Object getValue(String expression, int line, HashMap<String, String> localVars) throws RtflException {
 		Object val = null;
 		String exp = expression.trim();
 		
@@ -223,13 +227,17 @@ public class Expressions {
 			else if(exp.equalsIgnoreCase("undefined")) {}
 			else {
 				if(Text.isNumber(exp)) {
-					val = getNumberValue(exp, line);
+					val = getNumberValue(exp, line, localVars);
 				} else if(isString(exp)) {
-					val = getStringValue(exp, line);
-				} else if(isVar(exp)) {
-					val = INTERP.getVariables().get(exp);
+					val = getStringValue(exp, line, localVars);
+				} else if(isVar(exp, localVars)) {
+					if(localVars.containsKey(exp)) {
+						val = INTERP.getLocalVariables().get(localVars.get(exp));
+					} else {
+						val = INTERP.getVariables().get(exp);
+					}
 				} else if(isFunc(exp)) {
-					val = getFuncValue(exp, line);
+					val = getFuncValue(exp, line, localVars);
 				} else {
 					throw new RtflException("referenced variable \""+exp+"\" is undefined", line);
 				}

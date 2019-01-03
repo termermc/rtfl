@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 
 import net.termer.rtfl.exceptions.RtflException;
 
@@ -17,7 +18,7 @@ public class Rtfl {
 		if(args.length>0) {
 			RtflInterpreter interp = new RtflInterpreter();
 			try {
-				System.out.print(interp.execute(readFile(args[0])));
+				System.out.print(interp.execute(readFile(args[0]), new HashMap<String, String>()));
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch(RtflException e) {
