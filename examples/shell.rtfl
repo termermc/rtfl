@@ -9,7 +9,7 @@ func help {
 }
 func quit {
 	println("NOTE: This is an alias to Rtfl's exit() function, this should not be used in normal scripts!")
-        error __err {
+		error __err {
 		exit()
 	}
 	// Detect if the exit function has been undefined
@@ -36,7 +36,21 @@ func echo {
 	}
 	if equals(echo, false) {
 		println("Echo disabled")
-    }
+	}
+}
+
+def backslash = " \\ "
+backslash = substring(backslash, 1, 2)
+
+func remove_backslash {
+	local str = arg1
+	local res = str
+	if ends_with(str, backslash) {
+		local strlen = string_length(str)
+		strlen = sub(strlen, 1)
+		res = substring(str, 0, strlen)
+	}
+	return res
 }
 
 open_terminal()
@@ -45,20 +59,47 @@ println("=========================")
 println("Welcome to the Rtfl shell")
 println("=========================\n")
 println("Enter some code and hit enter to interpret it instantly!")
-println("To return the result of executed lines, type echo(true), or use false to disable it.\n")
+println("To return the result of executed lines, type echo(true), or use false to disable it.")
+println("To use newlines, simply add \\ to the end of a line to use another line without executing.\n")
 
 while terminal_open() {
-        print("> ")
-        error err {		
-		def res = eval(read_terminal())
-		def to_str = to_string(res)
-		if echo {
-			if not(equals(to_str, "null")) {
-				println(res)
+	print("> ")
+		error err {
+			local cache = ""
+			local in = read_terminal()
+			local ends = ends_with(in, backslash)
+			
+			if ends {
+				local subbed = remove_backslash(in)
+				cache = concat(subbed, "\n")
+				local add_cache = true
+				
+				while add_cache {
+					print(">>")
+					local input = read_terminal()
+					local subbed = remove_backslash(input)
+					cache = concat(cache, subbed)
+					if ends_with(input, backslash) {
+						cache = concat(cache, "\n")
+					}
+					if not(ends_with(input, backslash)) {
+						add_cache = false
+					}
+				}
 			}
+			if not(ends) {
+				cache = in
+			}
+			
+			local res = eval(cache)
+			local to_str = to_string(res)
+			if echo {
+				if not(equals(to_str, "null")) {
+					println(res)
+				}
+			}
+			undef res
 		}
-		undef res
-        }
 	if not(equals(err, "ok")) {
 		println(err)
 	}
