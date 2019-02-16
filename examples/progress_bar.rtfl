@@ -2,7 +2,7 @@ open_terminal()
 
 print("Enter terminal width: ")
 def w = to_number(read_terminal())
-print("Enter terminal heigh: ")
+print("Enter terminal height: ")
 def h = to_number(read_terminal())
 h = sub(h, 1)
 print("Slowness: ")
