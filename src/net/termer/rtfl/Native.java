@@ -65,7 +65,9 @@ public class Native {
 		"async",
 		"delete_file",
 		"list_files",
-		"create_directory"
+		"create_directory",
+		"is_directory",
+		"exec"
 	};
 	public static final Function[] FUNCTIONS = {
 			new Function() {
@@ -706,6 +708,31 @@ public class Native {
 					if(args.length > 0) {
 						if(args[0] instanceof String) {
 							res = new File((String) args[0]).mkdirs();
+						}
+					}
+					return res;
+				}
+			},
+			new Function() {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) throws RtflException {
+					Object res = null;
+					if(args.length > 0) {
+						if(args[0] instanceof String) {
+							res = new File((String) args[0]).isDirectory();
+						}
+					}
+					return res;
+				}
+			},
+			new Function() {
+				public Object run(Object[] args, RtflInterpreter interp, HashMap<String, String> localVars) throws RtflException {
+					Object res = null;
+					if(args.length > 0) {
+						try {
+							Process p = Runtime.getRuntime().exec((String)args[0]);
+							p.waitFor();
+						} catch (IOException | InterruptedException e) {
+							e.printStackTrace();
 						}
 					}
 					return res;

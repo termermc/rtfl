@@ -14,6 +14,17 @@ public class Expressions {
 		INTERP = interpreter;
 	}
 	
+	public boolean isBoolean(String expression) {
+		String exp = expression.trim();
+		boolean bool = false;
+		if(isValid(exp)) {
+			if((exp.startsWith("[") || exp.startsWith("![")) && exp.endsWith("]")) {
+				bool = true;
+			}
+		}
+		return bool;
+	}
+	
 	public boolean isValid(String expression) {
 		boolean valid = true;
 		String exp = expression.trim();
@@ -159,6 +170,71 @@ public class Expressions {
 		return val;
 	}
 	
+	public Boolean getBooleanValue(String expression, int line, HashMap<String, String> localVars) throws RtflException {
+		Boolean bool = null;
+		String exp = expression.trim();
+		
+		if(isValid(exp)) {
+			if(isBoolean(exp)) {
+				boolean not = false;
+				if(exp.startsWith("!")) {
+					not = true;
+					exp = exp.substring(1);
+				}
+				String contents = exp.substring(1, exp.length()-1);
+				String left = null;
+				String right = null;
+				char operator = ' ';
+				// Loop through contents to find operator
+				for(int i = 0; i < contents.length(); i++) {
+					char c = contents.charAt(i);
+					if(c=='=' || c=='<' || c=='>' || c=='|' || c=='&') {
+						if(!Text.isInQuotes(contents, i, false)) {
+							left = contents.substring(0, i).trim();
+							right = contents.substring(i+1).trim();
+							operator = c;
+							
+							break;
+						}
+					}
+				}
+				
+				if(operator == ' ') {
+					Object val = getValue(contents, line, localVars);
+					if(val instanceof Boolean) {
+						bool = (Boolean)val;
+					}
+				} else {
+					Object l = getValue(left, line, localVars);
+					Object r = getValue(right, line, localVars);
+					
+					if(operator=='=') {
+						bool = l.equals(r);
+					} else if(operator=='<') {
+						if(l instanceof Double && r instanceof Double) {
+							bool = ((Double)l) < ((Double)r);
+						}
+					} else if(operator=='>') {
+						if(l instanceof Double && r instanceof Double) {
+							bool = ((Double)l) > ((Double)r);
+						}
+					} else if(operator=='|') {
+						if(l instanceof Boolean && r instanceof Boolean) {
+							bool = ((Boolean)l) || ((Boolean)r);
+						}
+					} else if(operator=='&') {
+						if(l instanceof Boolean && r instanceof Boolean) {
+							bool = ((Boolean)l) && ((Boolean)r);
+						}
+					}
+				}
+				if(not) bool = !bool;
+			}
+		}
+		
+		return bool;
+	}
+	
 	public Object getFuncValue(String expression, int line, HashMap<String, String> localVars) throws RtflException {
 		Object val = null;
 		String exp = expression.trim();
@@ -236,6 +312,8 @@ public class Expressions {
 					} else {
 						val = INTERP.getVariables().get(exp);
 					}
+				} else if(isBoolean(exp)) {
+					val = getBooleanValue(exp, line, localVars);
 				} else if(isFunc(exp)) {
 					val = getFuncValue(exp, line, localVars);
 				} else {
