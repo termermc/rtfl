@@ -41,8 +41,18 @@ variable.
 Null values can be expressed with null, undefined, and void, as well
 as a reference to a variable.
 
+2. Logic
+Logical expressions are expressions that can perform a logical
+operation and express a boolean. They can use the following operators:
+=, <, >, |, and &. These act like standard logical operators. Logic
+expressions must start with "[" and end with "]". Example:
+[false = false]
+This would express a value of true, since false equals false. The
+equals operator can be swapped out for any other logical operator.
+To add a "not" to the expression, simply put an "!" before the first
+bracket to have the expression express the opposite of its normal result.
 
-2. Variables
+3. Variables
 
 Rtfl can store any value inside of a variable. Like in
 JavaScript, variables are dynamically typed. To declare a
@@ -68,7 +78,7 @@ local var_name = "value"
 Other than scoping, these variables behave identically to
 normally scoped variables.
 
-3. Functions
+4. Functions
 
 In Rtfl, you can define functions to do certain actions.
 Functions can receive and return values, just like in JavaScript.
@@ -85,7 +95,7 @@ reference arglen, which is a number.
 Just like with variables, functions can be cleared by typing
 unfunc some_function
 
-4. Error handling
+5. Error handling
 
 Normally, if an error is encountered, the interpreter will
 print the error in the terminal, and continue executing. However,
@@ -116,7 +126,7 @@ if not(equals(err, "ok")) {
 	println(err)
 }
 
-4. Built-in Functions
+6. Built-in Functions
 
 Rtfl comes with a set of built-in functions. Below are their
 usage and descriptions.
@@ -212,8 +222,9 @@ list_files(<string>) - lists all the files and directories in the
 					   specified directory.
 create_directory(<string>) - creates a directory with the specified
 							 path.
+exec(<string>) - runs the provided system command
 
-4. Known Bugs
+7. Known Bugs
 
 No more than two function calls can be nested into eachother.
 For instance, if you were to type
@@ -222,7 +233,7 @@ it would work, but if you were to type
 println(add(1,sub(2,1)))
 the interpreter would encounter an error.
 
-5. Making Jar Rtfl Libraries
+8. Making Jar Rtfl Libraries
 
 To make a library that can be loaded with library(), you must create
 a jar with a least one class named "Lib" that implements the net.termer.rtfl.Library
